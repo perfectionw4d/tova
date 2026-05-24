@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
-import { getPaintingById } from '@/lib/data';
+import { getPaintingById } from '@/lib/serverData';
 
 interface OrderRequest {
   name: string;
