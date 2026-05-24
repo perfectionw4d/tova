@@ -233,7 +233,7 @@ export default function PaintingsAdmin() {
                   </label>
                   <input
                     type="text"
-                    placeholder="למשל: 60x80 ס"מ"
+                    placeholder={'למשל: 60x80 ס"מ'}
                     value={formData.size}
                     onChange={(e) => setFormData({ ...formData, size: e.target.value })}
                     className="w-full px-4 py-2 border border-stone-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-stone-900 dark:text-white"
