@@ -23,6 +23,7 @@ export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [paintings, setPaintings] = useState<Painting[]>([]);
   const [randomPainting, setRandomPainting] = useState<Painting | null>(null);
+  const [randomPaintingsByCategory, setRandomPaintingsByCategory] = useState<Record<string, Painting>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,16 +34,25 @@ export default function Home() {
         const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
 
-        // Fetch all paintings to pick a random one
+        // Fetch all paintings to pick random ones
         const paintingsData: Painting[] = [];
+        const randomByCategory: Record<string, Painting> = {};
+
         for (const category of categoriesData) {
           const paintingsResponse = await fetch(`/api/paintings?category=${category.id}`);
           const categoryPaintings = await paintingsResponse.json();
           paintingsData.push(...categoryPaintings);
+
+          // Pick a random painting for this category
+          if (categoryPaintings.length > 0) {
+            const random = categoryPaintings[Math.floor(Math.random() * categoryPaintings.length)];
+            randomByCategory[category.id] = random;
+          }
         }
         setPaintings(paintingsData);
+        setRandomPaintingsByCategory(randomByCategory);
 
-        // Pick a random painting
+        // Pick a random painting for the featured section
         if (paintingsData.length > 0) {
           const random = paintingsData[Math.floor(Math.random() * paintingsData.length)];
           setRandomPainting(random);
@@ -156,25 +166,36 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  href={`/category/${category.id}`}
-                  className="group bg-white dark:bg-zinc-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
-                >
-                  <div className="aspect-video bg-gradient-to-br from-stone-300 to-stone-400 dark:from-zinc-600 dark:to-zinc-700 group-hover:from-stone-400 group-hover:to-stone-500 dark:group-hover:from-zinc-500 dark:group-hover:to-zinc-600 transition-colors flex items-center justify-center">
-                    <span className="text-stone-700 dark:text-zinc-300">הקטגוריה: {category.name}</span>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-2 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
-                      {category.name}
-                    </h3>
-                    <p className="text-stone-600 dark:text-stone-400">
-                      {category.count} {category.count === 1 ? 'ציור' : 'ציורים'}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+              {categories.map((category) => {
+                const randomCategoryPainting = randomPaintingsByCategory[category.id];
+                return (
+                  <Link
+                    key={category.id}
+                    href={`/category/${category.id}`}
+                    className="group bg-white dark:bg-zinc-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
+                  >
+                    <div className="aspect-video bg-gradient-to-br from-stone-300 to-stone-400 dark:from-zinc-600 dark:to-zinc-700 group-hover:from-stone-400 group-hover:to-stone-500 dark:group-hover:from-zinc-500 dark:group-hover:to-zinc-600 transition-colors flex items-center justify-center overflow-hidden">
+                      {randomCategoryPainting ? (
+                        <img
+                          src={randomCategoryPainting.image}
+                          alt={category.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <span className="text-stone-700 dark:text-zinc-300">הקטגוריה: {category.name}</span>
+                      )}
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-2 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+                        {category.name}
+                      </h3>
+                      <p className="text-stone-600 dark:text-stone-400">
+                        {category.count} {category.count === 1 ? 'ציור' : 'ציורים'}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
