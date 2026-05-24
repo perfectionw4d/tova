@@ -9,24 +9,52 @@ interface Category {
   count: number;
 }
 
+interface Painting {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  size: string;
+  image: string;
+  categoryId: string;
+}
+
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [paintings, setPaintings] = useState<Painting[]>([]);
+  const [randomPainting, setRandomPainting] = useState<Painting | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/categories');
-        const data = await response.json();
-        setCategories(data);
+        // Fetch categories
+        const categoriesResponse = await fetch('/api/categories');
+        const categoriesData = await categoriesResponse.json();
+        setCategories(categoriesData);
+
+        // Fetch all paintings to pick a random one
+        const paintingsData: Painting[] = [];
+        for (const category of categoriesData) {
+          const paintingsResponse = await fetch(`/api/paintings?category=${category.id}`);
+          const categoryPaintings = await paintingsResponse.json();
+          paintingsData.push(...categoryPaintings);
+        }
+        setPaintings(paintingsData);
+
+        // Pick a random painting
+        if (paintingsData.length > 0) {
+          const random = paintingsData[Math.floor(Math.random() * paintingsData.length)];
+          setRandomPainting(random);
+        }
       } catch (error) {
-        console.error('Failed to fetch categories:', error);
+        console.error('Failed to fetch data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCategories();
+    fetchData();
   }, []);
 
   return (
@@ -76,6 +104,41 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Featured Painting Hero */}
+        {randomPainting && (
+          <div className="bg-gradient-to-r from-amber-50 to-stone-100 dark:from-zinc-900 dark:to-black rounded-lg shadow-lg overflow-hidden mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center p-8">
+              {/* Image */}
+              <div className="aspect-square overflow-hidden rounded-lg shadow-md order-2 md:order-1">
+                <img
+                  src={randomPainting.image}
+                  alt={randomPainting.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Info */}
+              <div className="order-1 md:order-2">
+                <p className="text-amber-700 dark:text-amber-400 font-semibold mb-2">
+                  ✨ ציור מודגש
+                </p>
+                <h2 className="text-3xl font-bold text-stone-900 dark:text-white mb-4">
+                  {randomPainting.name}
+                </h2>
+                <p className="text-stone-600 dark:text-stone-400 mb-6 text-lg leading-relaxed">
+                  {randomPainting.description}
+                </p>
+                <Link
+                  href={`/painting/${randomPainting.id}`}
+                  className="inline-block bg-amber-700 hover:bg-amber-800 dark:bg-amber-600 dark:hover:bg-amber-700 text-white font-bold px-6 py-3 rounded-lg transition-colors"
+                >
+                  צפה בפרטים →
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Categories Section */}
         <div>
