@@ -7,6 +7,7 @@ import Link from 'next/link';
 export default function AdminDashboard() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [openOrdersCount, setOpenOrdersCount] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -14,8 +15,23 @@ export default function AdminDashboard() {
       router.push('/admin');
     } else {
       setIsAuthenticated(true);
+      fetchOpenOrdersCount();
+      // Refresh every 30 seconds
+      const interval = setInterval(fetchOpenOrdersCount, 30000);
+      return () => clearInterval(interval);
     }
   }, [router]);
+
+  const fetchOpenOrdersCount = async () => {
+    try {
+      const response = await fetch('/api/orders');
+      const orders = await response.json();
+      const count = orders.filter((o: any) => o.status === 'pending').length;
+      setOpenOrdersCount(count);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -81,8 +97,13 @@ export default function AdminDashboard() {
           {/* Orders */}
           <Link
             href="/admin/orders"
-            className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer"
+            className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer relative"
           >
+            {openOrdersCount > 0 && (
+              <div className="absolute top-4 right-4 bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">
+                {openOrdersCount}
+              </div>
+            )}
             <h2 className="text-2xl font-bold text-stone-900 dark:text-white mb-4">
               📋 הזמנות
             </h2>
