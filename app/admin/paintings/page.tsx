@@ -24,6 +24,7 @@ export default function PaintingsAdmin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
   const [formData, setFormData] = useState<Painting>({
     id: '',
     name: '',
@@ -36,6 +37,20 @@ export default function PaintingsAdmin() {
     image: '',
     available: true,
   });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setImagePreview(result);
+        setFormData({ ...formData, image: result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -59,12 +74,14 @@ export default function PaintingsAdmin() {
       image: '',
       available: true,
     });
+    setImagePreview('');
     setEditingId(null);
     setShowForm(true);
   };
 
   const handleEdit = (painting: Painting) => {
     setFormData(painting);
+    setImagePreview(painting.image);
     setEditingId(painting.id);
     setShowForm(true);
   };
@@ -270,15 +287,24 @@ export default function PaintingsAdmin() {
 
               <div>
                 <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  נתיב תמונה
+                  תמונת ציור
                 </label>
                 <input
-                  type="text"
-                  placeholder="למשל: /paintings/freedom.jpg"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
                   className="w-full px-4 py-2 border border-stone-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-stone-900 dark:text-white"
                 />
+                {imagePreview && (
+                  <div className="mt-4">
+                    <p className="text-sm text-stone-600 dark:text-stone-400 mb-2">תצוגה מקדימה:</p>
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-auto max-h-64 object-cover rounded-lg border border-stone-300 dark:border-zinc-600"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -303,7 +329,10 @@ export default function PaintingsAdmin() {
                 שמור
               </button>
               <button
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                  setShowForm(false);
+                  setImagePreview('');
+                }}
                 className="flex-1 bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition-colors"
               >
                 ביטול
