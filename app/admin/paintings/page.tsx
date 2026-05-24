@@ -74,8 +74,22 @@ export default function PaintingsAdmin() {
   useEffect(() => {
     if (isAuthenticated && paintings.length > 0) {
       localStorage.setItem('paintings', JSON.stringify(paintings));
+      // Also sync to server
+      savePaintingsToServer(paintings);
     }
   }, [paintings, isAuthenticated]);
+
+  const savePaintingsToServer = async (data: Painting[]) => {
+    try {
+      await fetch('/api/admin/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paintings: data }),
+      });
+    } catch (error) {
+      console.error('Failed to sync paintings to server:', error);
+    }
+  };
 
   const handleAddNew = () => {
     setFormData({

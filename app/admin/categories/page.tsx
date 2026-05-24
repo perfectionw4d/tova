@@ -45,8 +45,22 @@ export default function CategoriesAdmin() {
   useEffect(() => {
     if (isAuthenticated && categories.length > 0) {
       localStorage.setItem('categories', JSON.stringify(categories));
+      // Also sync to server
+      saveCategoriesToServer(categories);
     }
   }, [categories, isAuthenticated]);
+
+  const saveCategoriesToServer = async (data: Category[]) => {
+    try {
+      await fetch('/api/admin/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ categories: data }),
+      });
+    } catch (error) {
+      console.error('Failed to sync categories to server:', error);
+    }
+  };
 
   const handleAddNew = () => {
     setFormData({ id: '', name: '', description: '' });

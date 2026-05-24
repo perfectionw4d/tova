@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPaintingById } from '@/lib/data';
+import { getPaintingById } from '@/lib/serverData';
 
 export async function GET(
   request: Request,

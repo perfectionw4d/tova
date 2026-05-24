@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPaintingsByCategory } from '@/lib/data';
+import { getPaintingsByCategory } from '@/lib/serverData';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

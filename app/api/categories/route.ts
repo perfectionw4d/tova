@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { categories, getCategoryCount } from '@/lib/data';
+import { getCategories, getCategoryCount } from '@/lib/serverData';
 
 export async function GET() {
+  const categories = getCategories();
   const categoriesWithCount = categories.map((cat) => ({
     id: cat.id,
     name: cat.name,
