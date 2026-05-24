@@ -136,15 +136,29 @@ export async function POST(request: Request) {
     // Store the order
     orders.push(body);
 
-    // Send emails
-    try {
-      await sendCustomerEmail(body, painting);
-      await sendAdminEmail(body, painting);
-      console.log('Order emails sent successfully');
-    } catch (emailError) {
-      console.error('Error sending emails:', emailError);
-      // Don't fail the order if email fails - still return success
-      // but log the error for debugging
+    // Send emails with timeout (don't block order submission)
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      try {
+        // Send emails with 5 second timeout
+        const emailTimeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Email timeout')), 5000)
+        );
+
+        await Promise.race([
+          Promise.all([
+            sendCustomerEmail(body, painting),
+            sendAdminEmail(body, painting),
+          ]),
+          emailTimeout,
+        ]);
+        console.log('Order emails sent successfully');
+      } catch (emailError) {
+        console.error('Error sending emails:', emailError);
+        // Order is still successful even if email fails
+        // Log for debugging but don't fail the response
+      }
+    } else {
+      console.warn('SMTP not configured - emails skipped');
     }
 
     return NextResponse.json(
