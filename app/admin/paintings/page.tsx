@@ -58,8 +58,24 @@ export default function PaintingsAdmin() {
       router.push('/admin');
     } else {
       setIsAuthenticated(true);
+      // Load paintings from localStorage if saved
+      const savedPaintings = localStorage.getItem('paintings');
+      if (savedPaintings) {
+        try {
+          setPaintings(JSON.parse(savedPaintings));
+        } catch (e) {
+          console.error('Failed to load paintings:', e);
+        }
+      }
     }
   }, [router]);
+
+  // Save paintings to localStorage whenever they change
+  useEffect(() => {
+    if (isAuthenticated && paintings.length > 0) {
+      localStorage.setItem('paintings', JSON.stringify(paintings));
+    }
+  }, [paintings, isAuthenticated]);
 
   const handleAddNew = () => {
     setFormData({
@@ -123,12 +139,20 @@ export default function PaintingsAdmin() {
             <h1 className="text-3xl font-bold text-stone-900 dark:text-white">
               ניהול ציורים
             </h1>
-            <Link
-              href="/admin/dashboard"
-              className="text-amber-700 dark:text-amber-400 hover:underline"
-            >
-              ← חזרה לדשבורד
-            </Link>
+            <div className="flex gap-4">
+              <button
+                onClick={() => window.open('/', '_blank')}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+              >
+                👁️ צפייה באתר
+              </button>
+              <Link
+                href="/admin/dashboard"
+                className="text-amber-700 dark:text-amber-400 hover:underline"
+              >
+                ← חזרה לדשבורד
+              </Link>
+            </div>
           </div>
           <button
             onClick={handleAddNew}

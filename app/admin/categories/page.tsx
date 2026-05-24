@@ -29,8 +29,24 @@ export default function CategoriesAdmin() {
       router.push('/admin');
     } else {
       setIsAuthenticated(true);
+      // Load categories from localStorage if saved
+      const savedCategories = localStorage.getItem('categories');
+      if (savedCategories) {
+        try {
+          setCategories(JSON.parse(savedCategories));
+        } catch (e) {
+          console.error('Failed to load categories:', e);
+        }
+      }
     }
   }, [router]);
+
+  // Save categories to localStorage whenever they change
+  useEffect(() => {
+    if (isAuthenticated && categories.length > 0) {
+      localStorage.setItem('categories', JSON.stringify(categories));
+    }
+  }, [categories, isAuthenticated]);
 
   const handleAddNew = () => {
     setFormData({ id: '', name: '', description: '' });
@@ -78,9 +94,17 @@ export default function CategoriesAdmin() {
             <h1 className="text-3xl font-bold text-stone-900 dark:text-white">
               ניהול קטגוריות
             </h1>
-            <Link href="/admin/dashboard" className="text-amber-700 dark:text-amber-400 hover:underline">
-              ← חזרה לדשבורד
-            </Link>
+            <div className="flex gap-4">
+              <button
+                onClick={() => window.open('/', '_blank')}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+              >
+                👁️ צפייה באתר
+              </button>
+              <Link href="/admin/dashboard" className="text-amber-700 dark:text-amber-400 hover:underline">
+                ← חזרה לדשבורד
+              </Link>
+            </div>
           </div>
           <button
             onClick={handleAddNew}
