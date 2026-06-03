@@ -2,18 +2,52 @@ import { paintings as initialPaintings, categories as initialCategories } from '
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Server-side storage (persists across requests in the same process)
-let serverPaintings = initialPaintings;
-let serverCategories = initialCategories;
-
-// Orders file path
-const ordersFilePath = path.join(process.cwd(), 'data', 'orders.json');
+// Data file paths
+const dataDir = path.join(process.cwd(), 'data');
+const paintingsFilePath = path.join(dataDir, 'paintings.json');
+const categoriesFilePath = path.join(dataDir, 'categories.json');
+const ordersFilePath = path.join(dataDir, 'orders.json');
 
 // Ensure data directory exists
-const dataDir = path.join(process.cwd(), 'data');
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
+
+// Server-side storage (loads from files)
+let serverPaintings = initialPaintings;
+let serverCategories = initialCategories;
+
+// Load paintings from file
+function loadPaintings() {
+  try {
+    if (fs.existsSync(paintingsFilePath)) {
+      const data = fs.readFileSync(paintingsFilePath, 'utf-8');
+      return JSON.parse(data || '[]');
+    }
+    return initialPaintings;
+  } catch (error) {
+    console.error('Failed to load paintings:', error);
+    return initialPaintings;
+  }
+}
+
+// Load categories from file
+function loadCategories() {
+  try {
+    if (fs.existsSync(categoriesFilePath)) {
+      const data = fs.readFileSync(categoriesFilePath, 'utf-8');
+      return JSON.parse(data || '[]');
+    }
+    return initialCategories;
+  } catch (error) {
+    console.error('Failed to load categories:', error);
+    return initialCategories;
+  }
+}
+
+// Initialize from files
+serverPaintings = loadPaintings();
+serverCategories = loadCategories();
 
 export function getPaintings() {
   return serverPaintings;
@@ -24,11 +58,21 @@ export function getCategories() {
 }
 
 export function setPaintings(data: any[]) {
-  serverPaintings = data;
+  try {
+    serverPaintings = data;
+    fs.writeFileSync(paintingsFilePath, JSON.stringify(data, null, 2));
+  } catch (error) {
+    console.error('Failed to save paintings:', error);
+  }
 }
 
 export function setCategories(data: any[]) {
-  serverCategories = data;
+  try {
+    serverCategories = data;
+    fs.writeFileSync(categoriesFilePath, JSON.stringify(data, null, 2));
+  } catch (error) {
+    console.error('Failed to save categories:', error);
+  }
 }
 
 export function getPaintingsByCategory(categoryId: string) {

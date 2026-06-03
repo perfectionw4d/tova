@@ -33,6 +33,11 @@ export default function SettingsAdmin() {
     setTimeout(() => setSaved(false), 3000);
   };
 
+  const goToPreview = () => {
+    localStorage.setItem('previewAuth', 'true');
+    window.open('/preview', '_blank');
+  };
+
   if (!isAuthenticated) {
     return <div className="text-center py-12">טוען...</div>;
   }
@@ -47,10 +52,10 @@ export default function SettingsAdmin() {
             </h1>
             <div className="flex gap-4">
               <button
-                onClick={() => window.open('/', '_blank')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                onClick={goToPreview}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-bold"
               >
-                👁️ צפייה באתר
+                👁️ צפיה בקטלוג
               </button>
               <Link href="/admin/dashboard" className="text-amber-700 dark:text-amber-400 hover:underline">
                 ← חזרה לדשבורד

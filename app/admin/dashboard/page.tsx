@@ -35,7 +35,13 @@ export default function AdminDashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('previewAuth');
     router.push('/admin');
+  };
+
+  const goToPreview = () => {
+    localStorage.setItem('previewAuth', 'true');
+    window.open('/preview', '_blank');
   };
 
   if (!isAuthenticated) {
@@ -130,6 +136,22 @@ export default function AdminDashboard() {
               פתח
             </button>
           </Link>
+
+          {/* Preview Mode */}
+          <button
+            onClick={goToPreview}
+            className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer border-2 border-green-500"
+          >
+            <h2 className="text-2xl font-bold text-stone-900 dark:text-white mb-4">
+              👁️ צפיה בקטלוג
+            </h2>
+            <p className="text-stone-600 dark:text-stone-400 mb-4">
+              ראה את הקטלוג בפרסום זמני
+            </p>
+            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors w-full font-bold">
+              לצפיה
+            </button>
+          </button>
         </div>
       </main>
     </div>

@@ -38,6 +38,11 @@ export default function PaintingsAdmin() {
     available: true,
   });
 
+  const goToPreview = () => {
+    localStorage.setItem('previewAuth', 'true');
+    window.open('/preview', '_blank');
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -155,10 +160,10 @@ export default function PaintingsAdmin() {
             </h1>
             <div className="flex gap-4">
               <button
-                onClick={() => window.open('/', '_blank')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                onClick={goToPreview}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-bold"
               >
-                👁️ צפייה באתר
+                👁️ צפיה בקטלוג
               </button>
               <Link
                 href="/admin/dashboard"

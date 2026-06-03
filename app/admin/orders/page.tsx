@@ -22,6 +22,11 @@ export default function OrdersAdmin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const goToPreview = () => {
+    localStorage.setItem('previewAuth', 'true');
+    window.open('/preview', '_blank');
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (!token) {
@@ -87,10 +92,10 @@ export default function OrdersAdmin() {
             </div>
             <div className="flex gap-4">
               <button
-                onClick={() => window.open('/', '_blank')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                onClick={goToPreview}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-bold"
               >
-                👁️ צפייה באתר
+                👁️ צפיה בקטלוג
               </button>
               <Link href="/admin/dashboard" className="text-amber-700 dark:text-amber-400 hover:underline">
                 ← חזרה לדשבורד
