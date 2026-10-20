@@ -87,6 +87,31 @@ export function getPaintingById(id: string) {
   return serverPaintings.find(p => p.id === id);
 }
 
+// Site settings (admin password + site name)
+const settingsFilePath = path.join(dataDir, 'settings.json');
+const DEFAULT_SETTINGS = {
+  adminPassword: '123456',
+  siteName: 'טובה גיטי זינגר',
+};
+
+export function getSettings() {
+  try {
+    if (fs.existsSync(settingsFilePath)) {
+      const data = JSON.parse(fs.readFileSync(settingsFilePath, 'utf-8') || '{}');
+      return { ...DEFAULT_SETTINGS, ...data };
+    }
+  } catch (error) {
+    console.error('Failed to read settings:', error);
+  }
+  return { ...DEFAULT_SETTINGS };
+}
+
+export function updateSettings(patch: Partial<typeof DEFAULT_SETTINGS>) {
+  const next = { ...getSettings(), ...patch };
+  fs.writeFileSync(settingsFilePath, JSON.stringify(next, null, 2));
+  return next;
+}
+
 // Orders management
 export function getOrders() {
   try {

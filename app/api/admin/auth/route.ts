@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
-
-const ADMIN_PASSWORD = '123456';
+import { getSettings } from '@/lib/serverData';
 
 export async function POST(request: Request) {
   try {
     const { password } = await request.json();
 
-    if (password === ADMIN_PASSWORD) {
+    if (password === getSettings().adminPassword) {
       // Create a simple token
       const token = Buffer.from(`admin-${Date.now()}`).toString('base64');
 

@@ -1,10 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [siteName, setSiteName] = useState('טובה גיטי זינגר');
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.siteName) setSiteName(data.siteName);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <header className="bg-white dark:bg-zinc-800 border-b border-stone-200 dark:border-zinc-700 sticky top-0 z-50">
@@ -19,7 +29,7 @@ export default function Header() {
         </div>
 
         <Link href="/" className="text-2xl font-bold text-stone-900 dark:text-white">
-          טובה גיטי זינגר
+          {siteName}
         </Link>
 
         <div className="hidden sm:flex items-center gap-4">
